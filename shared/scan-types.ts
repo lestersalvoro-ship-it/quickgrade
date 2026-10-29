@@ -33,7 +33,8 @@ export type ScanErrorCode =
   | 'MARKERS_NOT_FOUND'
   | 'SHEET_CODE_UNREADABLE'
   | 'TOO_BLURRY'
-  | 'LAYOUT_UNSUPPORTED';
+  | 'LAYOUT_UNSUPPORTED'
+  | 'WRONG_QUIZ';
 
 export interface ScanError {
   code: ScanErrorCode;

@@ -71,6 +71,7 @@ const ERROR_TEXT: Record<ScanErrorCode, { message: string; hint: string }> = {
     hint: 'Make sure the strip of small black squares at the top is not covered, folded or written on. Select the quiz before scanning to allow a fallback.',
   },
   TOO_BLURRY: { message: 'The photo is too blurry to read the bubbles reliably.', hint: 'Hold the camera steady, tap to focus on the sheet and retake the photo.' },
+  WRONG_QUIZ: { message: 'This answer sheet belongs to a different quiz.', hint: 'Scan it in a grading session for the quiz printed on the sheet.' },
   LAYOUT_UNSUPPORTED: { message: 'This sheet uses a layout this version of QuickGrade cannot read.', hint: 'Print a fresh answer sheet from QuickGrade for this quiz.' },
 };
 
