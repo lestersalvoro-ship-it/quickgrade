@@ -24,7 +24,9 @@ QuickGrade is a web app (installable PWA) for teachers, tutors and review centre
 10. [Limitations, pending work and external services](#limitations-and-pending-work)
 11. [Project layout](#project-layout)
 
-Detailed guides are in [`docs/`](docs): [scanning & printing](docs/scanning.md), [AI](docs/ai.md), [deployment & backups](docs/deployment.md), [security & privacy](docs/security-privacy.md).
+Detailed guides are in [`docs/`](docs): [scanning & printing](docs/scanning.md), [AI](docs/ai.md), [deployment & backups](docs/deployment.md), [Android app (APK)](docs/android.md), [security & privacy](docs/security-privacy.md).
+
+**Android app:** run the **Actions → Android APK** workflow on GitHub (it builds on Ubuntu), enter your server's HTTPS address, and download the APK. See [docs/android.md](docs/android.md).
 
 ---
 
@@ -108,6 +110,7 @@ Legend: ✅ implemented and covered by automated tests · 🟡 implemented, veri
 | Scan-image retention | ✅ | Configurable days (0 = delete on confirm); periodic cleanup |
 | Responsive / mobile layout | ✅ | Playwright checks for no horizontal overflow on a Pixel 7 viewport |
 | Installable PWA | 🟡 | Manifest and icons; no service worker (no offline mode) |
+| Android app (APK) | 🟡 | Capacitor wrapper of the hosted server with camera permission, downloads and back button; built by a GitHub Actions workflow on `ubuntu-latest`. Not compiled or tried on a phone in the development environment |
 | Offline queue / sync | ⏳ | Not implemented (see limitations) |
 | Multi-teacher schools / admin role | ⏳ | Only a school name on the profile; no shared org accounts |
 | Student-facing mode | ⏳ | Not implemented. Explanations are teacher-only, so keys are never exposed |

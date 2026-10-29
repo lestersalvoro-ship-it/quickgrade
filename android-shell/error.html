@@ -1,0 +1,6 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QuickGrade — offline</title>
+<style>body{margin:0;font-family:system-ui,sans-serif;background:#f5f6f8;color:#111827;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center;padding:24px}img{width:72px}button{margin-top:16px;padding:12px 20px;border:0;border-radius:8px;background:#1e40af;color:#fff;font-size:16px}p{color:#4b5563;max-width:22rem;margin:8px auto}</style></head>
+<body><div><img src="icon.svg" alt=""><h1>Can’t reach QuickGrade</h1><p>Check your internet connection. Scanning and grading need a connection to your school’s QuickGrade server.</p>
+<button onclick="window.QG_SERVER ? location.replace(window.QG_SERVER) : location.reload()">Try again</button></div>
+<script src="server.js"></script></body></html>

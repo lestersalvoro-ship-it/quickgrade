@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">QuickGrade</string>
+    <string name="title_activity_main">QuickGrade</string>
+    <string name="package_name">ph.quickgrade.app</string>
+    <string name="custom_url_scheme">ph.quickgrade.app</string>
+</resources>

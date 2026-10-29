@@ -1,0 +1,99 @@
+name: Android APK
+
+# Builds the QuickGrade Android app on GitHub's Ubuntu runners.
+# Start it from the Actions tab ("Run workflow"), or set the repository variable
+# QUICKGRADE_SERVER_URL and push a tag like android-v1.0.0.
+on:
+  workflow_dispatch:
+    inputs:
+      server_url:
+        description: 'HTTPS address of your QuickGrade server (e.g. https://grade.yourschool.ph). Leave empty to use the QUICKGRADE_SERVER_URL repository variable.'
+        required: false
+        type: string
+      version_name:
+        description: 'Version shown in Android settings'
+        required: false
+        default: '1.0.0'
+        type: string
+  push:
+    tags: ['android-v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      QUICKGRADE_SERVER_URL: ${{ inputs.server_url || vars.QUICKGRADE_SERVER_URL }}
+      QUICKGRADE_VERSION_NAME: ${{ inputs.version_name || github.ref_name }}
+      QUICKGRADE_VERSION_CODE: ${{ github.run_number }}
+      HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check server address
+        run: |
+          if [ -z "$QUICKGRADE_SERVER_URL" ]; then
+            echo "::error::Enter your QuickGrade server address when running the workflow, or set the QUICKGRADE_SERVER_URL repository variable."
+            exit 1
+          fi
+          case "$QUICKGRADE_SERVER_URL" in
+            https://*) echo "Building for $QUICKGRADE_SERVER_URL" ;;
+            *) echo "::error::The server address must start with https://"; exit 1 ;;
+          esac
+          # Tags look like android-v1.2.3; use 1.2.3 as the version name.
+          echo "QUICKGRADE_VERSION_NAME=${QUICKGRADE_VERSION_NAME#android-v}" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Capacitor Android project
+        run: |
+          node scripts/android-prepare.mjs
+          npx cap sync android
+
+      - name: Build debug APK (installable for testing)
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Build signed release APK and AAB
+        if: ${{ env.HAS_KEYSTORE == 'true' }}
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/release.jks"
+          ./gradlew --no-daemon assembleRelease bundleRelease
+
+      - name: Collect outputs
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/debug/app-debug.apk "out/QuickGrade-${QUICKGRADE_VERSION_NAME}-debug.apk"
+          if [ -f android/app/build/outputs/apk/release/app-release.apk ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk "out/QuickGrade-${QUICKGRADE_VERSION_NAME}.apk"
+            cp android/app/build/outputs/bundle/release/app-release.aab "out/QuickGrade-${QUICKGRADE_VERSION_NAME}.aab"
+          fi
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuickGrade-android-${{ env.QUICKGRADE_VERSION_NAME }}
+          path: out/
+          if-no-files-found: error

@@ -18,3 +18,4 @@ npm-debug.log*
 !.env.example
 .DS_Store
 samples/
+android-shell/server.js

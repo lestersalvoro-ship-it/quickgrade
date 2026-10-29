@@ -8,6 +8,20 @@ import { ToastProvider } from './components/ui';
 import { ApiError } from './lib/api';
 import './styles.css';
 
+// Inside the Android app (Capacitor WebView), "new tab" links for exports would leave the
+// signed-in app; keep same-origin links in place so the native download handler saves the file.
+const isNativeApp = navigator.userAgent.includes('QuickGradeAndroid/');
+if (isNativeApp) {
+  document.addEventListener(
+    'click',
+    (e) => {
+      const a = (e.target as HTMLElement | null)?.closest?.('a[target="_blank"]') as HTMLAnchorElement | null;
+      if (a && new URL(a.href, location.href).origin === location.origin) a.removeAttribute('target');
+    },
+    true,
+  );
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
