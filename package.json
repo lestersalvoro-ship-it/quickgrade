@@ -5,17 +5,17 @@
   "type": "module",
   "description": "QuickGrade — exam bubble-sheet scanning, grading and AI-assisted analytics for teachers",
   "engines": {
-    "node": ">=20.11"
+    "node": ">=22.13"
   },
   "scripts": {
     "dev": "concurrently -k -n api,web -c blue,green \"npm:dev:api\" \"npm:dev:web\"",
-    "dev:api": "tsx watch --clear-screen=false server/src/index.ts",
+    "dev:api": "tsx watch --clear-screen=false --disable-warning=ExperimentalWarning server/src/index.ts",
     "dev:web": "vite --config web/vite.config.ts",
     "build": "npm run build:web && npm run build:server",
     "build:web": "vite build --config web/vite.config.ts",
     "build:server": "esbuild server/src/index.ts server/src/cli.ts --bundle --platform=node --format=esm --target=node20 --packages=external --outdir=dist/server --out-extension:.js=.mjs",
-    "start": "node dist/server/index.mjs",
-    "migrate": "tsx server/src/cli.ts migrate",
+    "start": "node --disable-warning=ExperimentalWarning dist/server/index.mjs",
+    "migrate": "tsx --disable-warning=ExperimentalWarning server/src/cli.ts migrate",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -33,7 +33,6 @@
     "@fastify/multipart": "^10.1.6",
     "@fastify/rate-limit": "^11.2.1",
     "@fastify/static": "^10.1.8",
-    "better-sqlite3": "^13.0.3",
     "csv-parse": "^7.0.3",
     "csv-stringify": "^6.9.0",
     "dotenv": "^18.0.9",
@@ -49,7 +48,6 @@
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.105.0",
-    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.6",
     "@types/nodemailer": "^8.0.2",
     "@types/pdfkit": "^0.17.7",

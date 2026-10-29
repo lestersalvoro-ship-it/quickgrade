@@ -32,7 +32,7 @@ Detailed guides are in [`docs/`](docs): [scanning & printing](docs/scanning.md),
 
 ## Quick start
 
-**Requirements:** Node.js ≥ 20.11 (22 LTS recommended) and npm. For the scanner test suite and the sample-sheet script you also need poppler's `pdftoppm` (`apt install poppler-utils` / `brew install poppler`). The app itself does not need it.
+**Requirements:** Node.js ≥ 22.13 (22, 24 or 26 all work) and npm. For the scanner test suite and the sample-sheet script you also need poppler's `pdftoppm` (`apt install poppler-utils` / `brew install poppler`). The app itself does not need it.
 
 ```bash
 npm install
@@ -134,7 +134,7 @@ Legend: ✅ implemented and covered by automated tests · 🟡 implemented, veri
 │  services/support (audit log, mail, private image storage)         │
 └──────────────┬───────────────────────────────┬─────────────────────┘
                │                               │ only on request, aggregates only
-       SQLite (better-sqlite3, WAL)      Anthropic API (optional)
+       SQLite (built-in node:sqlite, WAL) Anthropic API (optional)
        + DATA_DIR/uploads (private)
 ```
 
@@ -144,7 +144,7 @@ Legend: ✅ implemented and covered by automated tests · 🟡 implemented, veri
 |---|---|---|
 | Frontend | React 19, React Router, TanStack Query, Tailwind v4, Vite | Fast, accessible, mobile-first; one codebase for phone and desktop |
 | Backend | Fastify 5 + zod validation | Small, fast, good plugin support (cookies, multipart, rate limit, helmet) |
-| Database | SQLite via better-sqlite3 with SQL migrations | Zero-ops for a single school server; real constraints, foreign keys and transactions; trivial backups. Postgres is a documented upgrade path |
+| Database | SQLite via Node’s built-in `node:sqlite` (no native module to compile) with SQL migrations | Zero-ops for a single school server; real constraints, foreign keys and transactions; trivial backups. Postgres is a documented upgrade path |
 | Auth | Built-in `crypto.scrypt`, server-side sessions | No external identity service required; secrets never reach the browser |
 | Scanner | Custom TypeScript pipeline + sharp (libvips) for decoding | Deterministic, unit-testable, no WASM/native CV dependency, runs server-side. See below for why not OpenCV |
 | PDF | pdfkit | Vector output with exact millimetre geometry |

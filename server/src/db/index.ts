@@ -1,9 +1,67 @@
-import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DatabaseSync, backup as sqliteBackup } from 'node:sqlite';
 
-export type DB = Database.Database;
+/** Prepared statement. Rows are cast to typed interfaces at each call site; integers are JS numbers. */
+export interface Statement {
+  run(...params: any[]): { changes: number; lastInsertRowid: number };
+  get(...params: any[]): any;
+  all(...params: any[]): any[];
+}
+
+/**
+ * Thin wrapper around Node's built-in SQLite (node:sqlite, Node ≥ 22.13), so the app
+ * needs no native database module and installs on any platform without compilers.
+ * It exposes the small API the code uses: prepare/exec plus nestable transactions.
+ */
+export class DB {
+  private depth = 0;
+  private savepoint = 0;
+
+  constructor(readonly raw: DatabaseSync) {}
+
+  prepare(sql: string): Statement {
+    return this.raw.prepare(sql) as unknown as Statement;
+  }
+
+  exec(sql: string): void {
+    this.raw.exec(sql);
+  }
+
+  pragma(setting: string): void {
+    this.raw.exec(`PRAGMA ${setting}`);
+  }
+
+  /** Wraps fn in a transaction; nested calls become savepoints. Returns a callable, like better-sqlite3. */
+  transaction<T>(fn: () => T): () => T {
+    return () => {
+      const outer = this.depth === 0;
+      const sp = `qg_sp_${++this.savepoint}`;
+      this.raw.exec(outer ? 'BEGIN IMMEDIATE' : `SAVEPOINT ${sp}`);
+      this.depth++;
+      try {
+        const result = fn();
+        this.depth--;
+        this.raw.exec(outer ? 'COMMIT' : `RELEASE ${sp}`);
+        return result;
+      } catch (err) {
+        this.depth--;
+        this.raw.exec(outer ? 'ROLLBACK' : `ROLLBACK TO ${sp}; RELEASE ${sp}`);
+        throw err;
+      }
+    };
+  }
+
+  /** Consistent online copy of the database to another file. */
+  async backup(destination: string): Promise<void> {
+    await sqliteBackup(this.raw, destination);
+  }
+
+  close(): void {
+    this.raw.close();
+  }
+}
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,7 +75,7 @@ function migrationsDir(): string {
 
 export function openDatabase(file: string): DB {
   if (file !== ':memory:') fs.mkdirSync(path.dirname(file), { recursive: true });
-  const db = new Database(file);
+  const db = new DB(new DatabaseSync(file));
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.pragma('busy_timeout = 5000');

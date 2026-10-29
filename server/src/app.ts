@@ -98,8 +98,9 @@ export async function buildApp(opts: BuildOptions): Promise<{ app: FastifyInstan
     if (err.code === 'FST_REQ_FILE_TOO_LARGE') {
       return reply.status(413).send({ error: { code: 'FILE_TOO_LARGE', message: `Files must be smaller than ${config.MAX_UPLOAD_MB} MB.` } });
     }
-    const sqliteCode = (err as { code?: string }).code;
-    if (sqliteCode?.startsWith('SQLITE_CONSTRAINT')) {
+    // node:sqlite reports constraint violations as ERR_SQLITE_ERROR with SQLite's primary code 19.
+    const sqliteErr = err as { code?: string; errcode?: number };
+    if (sqliteErr.code === 'ERR_SQLITE_ERROR' && ((sqliteErr.errcode ?? 0) & 0xff) === 19) {
       req.log.warn({ err }, 'constraint violation');
       return reply.status(409).send({ error: { code: 'CONFLICT', message: 'This change conflicts with existing data.' } });
     }
