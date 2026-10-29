@@ -109,7 +109,7 @@ function sessionListItem(db: DB, row: SessionRow & { quiz_title: string; class_n
     archived: !!row.archived_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    quiz: { id: row.quiz_id, title: row.quiz_title, questionCount: row.question_count },
+    quiz: { id: row.quiz_id, title: row.quiz_title, questionCount: row.question_count, choiceCount: quiz.choice_count },
     class: { id: row.class_id, name: row.class_name, section: row.class_section },
     submissionCount: agg.n,
     meanPercent: agg.mean === null ? null : Math.round(agg.mean * 100) / 100,

@@ -1,0 +1,155 @@
+@import 'tailwindcss';
+
+/* QuickGrade design tokens. Light by default, dark follows the OS. */
+:root {
+  color-scheme: light;
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --surface-3: #e5e8ed;
+  --border: #dde1e7;
+  --border-strong: #c3c9d2;
+  --text: #111827;
+  --text-2: #4b5563;
+  --text-3: #6b7280;
+  --primary: #1e40af;
+  --primary-hover: #1e3a8a;
+  --primary-fg: #ffffff;
+  --primary-soft: #e8eefc;
+  --primary-soft-text: #1e3a8a;
+  --accent: #0f766e;
+  --good: #0a7d0a;
+  --good-soft: #e6f4e6;
+  --bad: #c02a2a;
+  --bad-soft: #fbeaea;
+  --warn: #9a6200;
+  --warn-soft: #fdf3dc;
+  --focus: #2563eb;
+  --series-1: #2a78d6;
+  --chart-grid: #e7e9ed;
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #111214;
+    --surface: #1a1b1e;
+    --surface-2: #222327;
+    --surface-3: #2c2d32;
+    --border: #2f3137;
+    --border-strong: #42454d;
+    --text: #f0efec;
+    --text-2: #c3c2b7;
+    --text-3: #9a9990;
+    --primary: #4f7ff0;
+    --primary-hover: #6a93f3;
+    --primary-fg: #0b1020;
+    --primary-soft: #1d2a4d;
+    --primary-soft-text: #bcd0ff;
+    --accent: #2bb3a6;
+    --good: #3fbf3f;
+    --good-soft: #15301a;
+    --bad: #ef6b6b;
+    --bad-soft: #3a1b1b;
+    --warn: #f1b43c;
+    --warn-soft: #3a2e12;
+    --focus: #7aa2ff;
+    --series-1: #3987e5;
+    --chart-grid: #2a2c31;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-ink: var(--text);
+  --color-ink-2: var(--text-2);
+  --color-ink-3: var(--text-3);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-text: var(--primary-soft-text);
+  --color-accent: var(--accent);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-series: var(--series-1);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum' 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@layer components {
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--text);
+  min-height: 2.5rem;
+}
+.input:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 0;
+  border-color: transparent;
+}
+.input[aria-invalid='true'] {
+  border-color: var(--bad);
+}
+.input:disabled {
+  background: var(--surface-2);
+  color: var(--text-3);
+}
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

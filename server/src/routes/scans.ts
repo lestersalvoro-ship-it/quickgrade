@@ -5,7 +5,7 @@ import type { Ctx } from '../app';
 import { AppError, conflict, idParam, notFound, parse, requireUser } from '../http';
 import { audit } from '../services/support';
 import { sha256 } from '../auth/password';
-import { loadQuestions, saveSubmission, assertGradable, type QuizRow } from '../services/grading';
+import { loadQuestions, saveSubmission, assertGradable, rulesFor, teacherPassDefault, type QuizRow } from '../services/grading';
 import { normalizeStudentNumber } from '../services/students';
 import { scanAnswerSheet } from '../scanner/scan';
 import type { ScanResult, ScanSuccess } from '../../../shared/scan-types';
@@ -74,7 +74,9 @@ function scanView(ctx: Ctx, scan: ScanRow, session: SessionRow, quiz: QuizRow) {
     matchedStudent,
     existingSubmission: existing ? { id: existing.id, percent: existing.percent } : null,
     key: questions.map((q) => ({ number: q.number, correctChoice: q.correct_choice, points: q.points, excluded: !!q.excluded })),
-    quiz: { id: quiz.id, title: quiz.title, questionCount: quiz.question_count, choiceCount: quiz.choice_count },
+    quiz: { id: quiz.id, title: quiz.title, questionCount: quiz.question_count, choiceCount: quiz.choice_count, sheetCode: quiz.sheet_code },
+    rules: rulesFor(quiz, teacherPassDefault(db, scan.teacher_id)),
+    session: { id: session.id, name: session.name, classId: session.class_id },
   };
 }
 

@@ -23,6 +23,11 @@ export async function settingsRoutes(app: FastifyInstance, ctx: Ctx) {
     db.prepare(
       `UPDATE users SET full_name = ?, school_name = ?, default_pass_percent = ?, image_retention_days = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
     ).run(body.fullName, body.schoolName || null, body.defaultPassPercent, body.imageRetentionDays, user.id);
+    // Keep the stored pass flag in sync for quizzes that use the default threshold.
+    db.prepare(
+      `UPDATE submissions SET passed = (percent >= ?) WHERE session_id IN (
+         SELECT g.id FROM grading_sessions g JOIN quizzes q ON q.id = g.quiz_id WHERE g.teacher_id = ? AND q.pass_percent IS NULL)`,
+    ).run(body.defaultPassPercent, user.id);
     audit(db, user.id, 'user', user.id, 'update_profile', 'Updated profile and settings', body);
     return { user: { id: user.id, email: user.email, ...body, schoolName: body.schoolName || null } };
   });
